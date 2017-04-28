@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="com.youthen.master.persistence.entity">
+	<class name="LoginLog" table="T_LOGIN_LOG">
+		<id name="id" column="ID" type="java.lang.Long">
+			<generator class="sequence">
+				<param name="sequence">T_LOGIN_LOG_SEQUENCE</param>
+			</generator>
+		</id>
+		<many-to-one name="user" class="LoginUser" column="USERID" lazy="false" cascade="all"></many-to-one>
+		<property name="clientIp" column="CLIENT_IP" type="java.lang.String"/>
+		<property name="loginTime" column="LOGIN_TIME" type="java.util.Date" />
+		<property name="loginOffTime" column="LOGOFF_TIME" type="java.util.Date" /> 
+	</class>
+</hibernate-mapping>

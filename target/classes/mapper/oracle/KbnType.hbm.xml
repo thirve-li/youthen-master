@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="com.youthen.master.persistence.entity">
+	<class name="KbnType" table="T_SISQP_KBN_TYPE">
+		<id name="id"  column="ID" type="java.lang.Long"> 
+			<generator class="increment" />
+		</id>
+		<property name="name" column="NAME" type="java.lang.String" />
+		<property name="typeCode" column="TYPE_CODE" type="java.lang.String" />
+		<property name="isEdit" column="IS_EDIT" type="java.lang.Long" />
+		<property name="parentId" column="PARENT_ID" type="java.lang.Long" />
+		
+		<many-to-one name="parentType" class="KbnType" column="PARENT_ID" lazy="false" insert="false" update="false"></many-to-one>
+		
+	</class>
+</hibernate-mapping>

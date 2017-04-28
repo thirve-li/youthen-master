@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.1.7//EN"
+    "http://struts.apache.org/dtds/struts-2.1.7.dtd">
+<struts>
+    
+   <bean type="org.apache.struts2.dispatcher.multipart.MultiPartRequest"
+		name="myRequestParser" class="com.youthen.master.presentation.filter.RequestParseWrapper"
+		scope="default" optional="true" />
+	<constant name="struts.multipart.handler" value="myRequestParser" /> 
+    
+    
+    <!-- Individual settings -->
+    <include file="struts-fw.xml" />
+
+    <!-- System settings -->
+    <constant name="struts.objectFactory" value="spring" />
+    <constant name="struts.objectFactory.spring.autoWire" value="auto" />
+    <constant name="struts.convention.package.locators.basePackage" value="com.youthen" />
+    <constant name="struts.convention.result.path" value="/WEB-INF/jsp/" />
+    <constant name="struts.convention.action.includeJars" value=".*?/youthen.*?jar(!/)?,.*?/youthen.*?jar(!/)?" />
+    
+    <constant name="struts.custom.i18n.resources" value="webmessage" />
+    <!-- <constant name="struts.ui.theme" value="youthen" /> -->
+    <constant name="struts.multipart.maxSize" value="200000000" />
+    <constant name="struts.ognl.allowStaticMethodAccess" value="true" />
+    <constant name="struts.action.extension" value="action" />
+
+    <!-- ChainingInterceptor option -->
+    <constant name="struts.xwork.chaining.copyErrors" value="true"/> 
+    <constant name="struts.xwork.chaining.copyFieldErrors" value="true"/> 
+    <constant name="struts.xwork.chaining.copyMessages" value="true"/> 
+
+    <constant name="struts.convention.default.parent.package" value="package-default" />
+
+    <constant name="struts.devMode" value="false" />
+ <!--    <constant name="struts.configuration.xml.reload" value="true" /> -->
+   <!--  <constant name="struts.i18n.reload" value="false" />   -->
+    
+    <package name="youthen-token-default" extends="youthen-default"
+        abstract="true">
+        <result-types>
+            <result-type name="tiles"
+                class="org.apache.struts2.views.tiles.TilesResult" />
+        </result-types>
+                
+        <interceptors>
+            <interceptor name="accessLogging"
+                class="com.youthen.master.presentation.interceptor.AccessLoggingInterceptor" />
+        
+            <interceptor-stack name="youthenTokenStack">
+                <interceptor-ref name="tokenSession">
+                    <param name="includeMethods">lock,unlock</param>
+                    <param name="excludeMethods">.*</param>
+                </interceptor-ref>
+                <interceptor-ref name="token">
+                    <param name="includeMethods">input</param>
+                    <param name="excludeMethods">.*</param>
+                </interceptor-ref> 
+                <interceptor-ref name="defaultStack" />
+                <interceptor-ref name="accessLogging" />
+            </interceptor-stack>
+        </interceptors>
+        <default-interceptor-ref name="youthenTokenStack" />
+    </package>
+
+    <package name="package-default" namespace="/" extends="youthen-token-default">
+        <interceptors>
+            <interceptor name="execAuthorityCheck" class="com.youthen.master.presentation.interceptor.ExecAuthorityCheckInterceptor" />
+            
+            <interceptor-stack name="youthenSampleStack">
+                <interceptor-ref name="youthenTokenStack">
+                    <param name="fileUpload.maximumSize">15000000</param>
+                    <param name="fileUpload.allowedExtensions">.txt,.csv,.pdf,.jpeg,.gif,.png,.bmp,.jpg,.xls,.xlsx,.doc,.docx</param>
+                    <param name="operationLogging.ignoreKeys">password</param>
+                    <param name="validation.excludeMethods">init,clear,input,back,cancel,error,reset*,inputSupport, backToList</param>
+                </interceptor-ref>
+                <interceptor-ref name="execAuthorityCheck"/>
+            </interceptor-stack>
+        </interceptors>
+        
+        <default-interceptor-ref name="youthenSampleStack" />
+
+        <!-- global result -->
+        <global-results>
+            <result name="fatal" type="redirect">/error.jsp</result>
+            <result name="error">/error.jsp</result>
+            <result name="ignore" type="httpheader">
+                <param name="status">200</param>
+            </result>
+        </global-results>
+
+        <global-exception-mappings>
+            <exception-mapping exception="org.springframework.security.authentication.BadCredentialsException" result="badCredentialsException" />
+        </global-exception-mappings>
+    </package>
+    
+   <package name="user" namespace="/user" extends="package-default" > 
+        <global-results>
+            <result name="success">/WEB-INF/jsp/user/index.jsp</result>
+             <result name="InternalError" type="json">
+                 <param name="statusCode">500</param>
+                 <param name="ignoreHierarchy">false</param>
+                 <param name="root">errorMessage</param>
+             </result>
+             <result name="SecurityError" type="json">
+                 <param name="statusCode">403</param>
+                 <param name="ignoreHierarchy">false</param>
+                 <param name="root">errorMessage</param>
+             </result>
+             <result name="BusinessError" type="json">
+                 <param name="statusCode">200</param>
+                 <param name="ignoreHierarchy">false</param>
+                 <param name="root">errorMessage</param>
+             </result>
+             <result name="json-success" type="json">
+                 <param name="statusCode">200</param>
+                 <param name="ignoreHierarchy">false</param>
+                 <param name="root">resultBean</param>
+             </result>
+        </global-results>
+     
+        <action name="ajaxTest" class="user" method="ajaxTest">
+             <interceptor-ref name="youthenDefaultAjaxStack"/>
+        </action>
+     
+ 
+    </package>
+
+</struts>
