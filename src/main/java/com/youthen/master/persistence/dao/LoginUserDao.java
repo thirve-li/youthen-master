@@ -106,8 +106,12 @@ public class LoginUserDao extends EntityDaoImpl<LoginUser> {
             hql.append(" and user.mobile = '" + userDto.getMobile() + "'");
         }
 
-        if (StringUtils.isNotEmpty(userDto.getOpenId())) {
-            hql.append(" and user.openId = '" + userDto.getOpenId() + "'");
+        if (StringUtils.isNotEmpty(userDto.getSex())) {
+            hql.append(" and user.sex = '" + userDto.getSex() + "'");
+        }
+
+        if (userDto.getScore() != null) {
+            hql.append(" and user.score = '" + userDto.getScore() + "'");
         }
 
         if (userDto.getDepartmentId() != null) {
